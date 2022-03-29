@@ -1,79 +1,113 @@
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.StringTokenizer;
-
-// 게임 백준 BOJ 1103
-
+/**
+ *  input : 맵의 크기와 상태
+ *  process : 좌, 우, 위, 아래 방향 중 1가지 골라서 x만큼 이동. 동전이 구멍에 빠지거나, 보드의 바깥으로 나가면 끝남
+ *	output : 최대 이동 거리. 무한히 움직일 수 있다면 -1 출력
+ *	
+ *	solution
+ *	- dfs로 현재 위치(r,c)에서 갈 수 있는 모든 경우의 수를 재귀적으로 구한다. 그 중에서 최대 값을 선택한다. => 시간초과
+ *	 	i) 구멍에 빠지거나 보드의 바깥으로 나간다 => 현재까지 이동한 거리 return 
+ *		ii) 무한 루프 (방문했던 곳을 또 방문 할 수 있음 ) => -1 return
+ *	- 가지치기를 통해 굳이 탐색하지 않아도 되는 곳은 탐색하지 않도록 한다. 
+ *		iii) dp에 현재 위치에 대해 저장된 값이 지금까지 온 cnt 보다 더 큰 경우 => 어차피 최대 이동 거리가 못 됨  
+ *
+ */
 public class Main {
-
-	static int N, M, sol;
-	static boolean lFlag;
-	static int[] dy = { 0, 0, -1, 1 };
-	static int[] dx = { -1, 1, 0, 0 };
-	static int[][] map, dp;
-	static boolean[][] visit;
-
-	public static void main(String[] args) throws IOException {
-
+	static int[] dr = {1, -1, 0, 0};
+	static int[] dc = {0, 0, 1, -1};
+	static int n;
+	static int m;
+	static char[][] map;
+	static int[][] dp;
+	static boolean isInfinite;
+	static boolean[][] visited;
+	static int max = 0;
+	
+	public static boolean isOutOfMap(int r, int c) {
+		if(r<0 || r>=n || c<0 || c>=m) {
+			return true;
+		}
+		return false;
+	}
+	
+	// (r,c) : 현재 위치, visited : 지금까지 방문했던 경로, cnt : 지금까지 움직인 거리
+	public static void dfs(int r, int c, int cnt) {
+		// 현재까지 경로의 길이가 최대 값보다 크다면 -> 갱신
+		if(cnt > max) {
+			max = cnt;
+		}
+		
+		dp[r][c] = cnt;	// cnt가 최대 값일 수 밖에 없으므로 캐싱
+		
+		int x = map[r][c]-'0';
+		
+		for(int i=0; i<4; i++) {
+			int nr = r + dr[i]*x;
+			int nc = c + dc[i]*x;
+			
+			if(!isOutOfMap(nr, nc) && map[nr][nc] != 'H') {
+				// 무한 루프 체크
+				if(visited[nr][nc]) {
+					isInfinite = true;
+					return;
+				}
+				
+				// 가지치기. 방문하려는 곳이 현재 count보다 크면 굳이 방문하지 않는다. 
+				if(dp[nr][nc] > cnt) {
+					continue;
+				}
+				
+				visited[nr][nc] = true;
+				dfs(nr, nc, cnt+1);
+				visited[nr][nc] = false;
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-
 		StringTokenizer st = new StringTokenizer(br.readLine());
-
-		sol = 0;
-		N = Integer.parseInt(st.nextToken());
-		M = Integer.parseInt(st.nextToken());
-
-		map = new int[N][M]; // 지도
-		dp = new int[N][M]; // dp 저장
-		visit = new boolean[N][M]; // 방문확인 (무한 loop 확인용)
-		for (int i = 0; i < N; i++) {
-			String inputSt = br.readLine();
-			for (int j = 0; j < M; j++) {
-				// int로 맞춰서 map에 넣어줌
-				if (inputSt.charAt(j) == 'H')
-					map[i][j] = 10; // 구멍인 경우 10으로 처리
-				else
-					map[i][j] = inputSt.charAt(j) - 48;
+		
+		n = Integer.parseInt(st.nextToken());
+		m = Integer.parseInt(st.nextToken());
+		
+		map = new char[n][m];
+		dp = new int[n][m];
+		
+		for(int i=0; i<n; i++) {
+			String row = br.readLine();
+			for(int j=0; j<m; j++) {
+				map[i][j] = row.charAt(j);
 			}
 		}
+//		printMap();
+		
+		visited = new boolean[n][m];
+		visited[0][0] = true;
+		dfs(0,0,1);
 
-		// DFS로 깊이우선탐색 + DP로 가지치기
-		visit[0][0] = true; // (0,0) 무한loop 확인용 true 마킹
-		lFlag = false; // 무한loop 안 빠진다고 가정하고 출발
-		dfs(0, 0, 1); // (0,0)에서 출발
 
-		if (lFlag) bw.write(String.valueOf(-1));
-		else bw.write(String.valueOf(sol));
-
-		br.close();
-		bw.flush();
-		bw.close();
+		if(isInfinite) {
+			System.out.println(-1);
+		}else {
+			System.out.println(max);
+		}
+		
 	}
-
-	static void dfs(int y, int x, int cnt) {
-		// 답 최신화
-		if (cnt > sol)
-			sol = cnt;
-		dp[y][x] = cnt; // 가지치기용 dp 배열에 현재 cnt 마킹
-		for (int i = 0; i < 4; i++) {
-			int num = map[y][x]; 
-			int ny = dy[i] * num + y; // 현재 좌표에 숫자*방향 만큼의 숫자로 새로운 좌표
-			int nx = dx[i] * num + x;
-
-			if (ny < 0 || nx < 0 || ny >= N || nx >= M || map[ny][nx] == 10)
-				continue; // 지도 범위를 넘어서거나 구멍이면 continue
-			if (visit[ny][nx]) { // 방문한 지점에 돌아왔으므로 무한loop 가능
-				lFlag = true;
-				return;
+	
+	public static void printMap() {
+		for(int i=0; i<map.length; i++) {
+			for(int j=0; j<map[i].length; j++) {
+				System.out.print(map[i][j]+" ");
 			}
-			if (dp[ny][nx] > cnt) continue;
-			visit[ny][nx] = true;
-			dfs(ny, nx, cnt+1);
-			visit[ny][nx] = false;
+			System.out.println();
 		}
 	}
 }

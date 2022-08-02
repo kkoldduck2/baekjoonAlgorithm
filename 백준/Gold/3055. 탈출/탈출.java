@@ -50,9 +50,6 @@ public class Main {
 				int nx = now.x + dx[i];
 				int ny = now.y + dy[i];
 				if(!isOutOfBound(nx, ny) && (map[nx][ny]=='.' || map[nx][ny]=='D') && !visit[nx][ny] && waterMap[nx][ny]>now.dist+1) {
-//					System.out.println("=====다음 위치 : "+nx+","+ny+"=========");
-//					System.out.println("해당 위치에 물이 차는 시간 : "+ waterMap[nx][ny]);
-//					System.out.println("고슴도치가 해당 위치에 도착하는 시간 : "+ now.dist+1);
 					q.add(new Node(nx, ny, now.dist+1));
 					visit[nx][ny] = true;
 				}
@@ -87,8 +84,6 @@ public class Main {
 				}
 			}
 		}
-		
-//		printWaterMap();
 	}
 	
 	
@@ -135,23 +130,4 @@ public class Main {
 			System.out.println(answer);
 		}
 	}
-	
-	static void printMap() {
-		for(int i=0; i<R; i++) {
-			for(int j=0; j<C; j++) {
-				System.out.print(map[i][j]+" ");
-			}
-			System.out.println();
-		}
-	}
-	
-	static void printWaterMap() {
-		for(int i=0; i<R; i++) {
-			for(int j=0; j<C; j++) {
-				System.out.print(waterMap[i][j]+" ");
-			}
-			System.out.println();
-		}
-	}
-	
 }

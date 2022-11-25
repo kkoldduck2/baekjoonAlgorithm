@@ -46,11 +46,6 @@ public class Main {
 		
 		// 도착 지점까지 갈 수 있음
 		if(getDist(now, end) <= h+umbrella) {
-			umbrella -= getDist(now, end);
-			if(umbrella < 0) {
-				h += umbrella;
-			}
-//			System.out.println("도착지점까지 이동 가능 -> 현재 위치 : "+Arrays.toString(now)+", 남은 체력 : "+h);
 			int total_dist = moveCnt+getDist(now, end);
 			minimum = Integer.min(total_dist, minimum);
 			return;

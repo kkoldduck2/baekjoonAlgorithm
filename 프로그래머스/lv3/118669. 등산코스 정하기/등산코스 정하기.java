@@ -61,27 +61,27 @@ class Solution {
 			isSummit[summits[i]] = true;
 		}
 		
-        // 그래프 만들기
-        graph = new ArrayList[n+1];
-        for(int i=1; i<=n; i++) {
-        	graph[i] = new ArrayList<>();
-        }
-        
-        for(int i=0; i<paths.length; i++) {
-        	int u = paths[i][0];
-        	int v = paths[i][1];
-        	int w = paths[i][2];
-        	
-        	if(isGate[u] || isSummit[v]) {
-        		graph[u].add(new Edge(v, w));
-        	}else if(isGate[v] || isSummit[u]) {
-        		graph[v].add(new Edge(u,w));
-        	}else {
-        		graph[u].add(new Edge(v, w));
-        		graph[v].add(new Edge(u,w));
-        	}
-        }
-        
-        return dijkstra(n, gates, summits);
+    // 그래프 만들기
+    graph = new ArrayList[n+1];
+    for(int i=1; i<=n; i++) {
+    	graph[i] = new ArrayList<>();
+    }
+    
+    for(int i=0; i<paths.length; i++) {
+    	int u = paths[i][0];
+    	int v = paths[i][1];
+    	int w = paths[i][2];
+    	
+    	if(isGate[u] || isSummit[v]) {
+    		graph[u].add(new Edge(v, w));
+    	}else if(isGate[v] || isSummit[u]) {
+    		graph[v].add(new Edge(u,w));
+    	}else {
+    		graph[u].add(new Edge(v, w));
+    		graph[v].add(new Edge(u,w));
+    	}
+    }
+    
+    return dijkstra(n, gates, summits);
     }
 }
